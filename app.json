@@ -1,0 +1,12 @@
+{
+  "name": "sportLog",
+  "displayName": "sportLog",
+  "expo": {
+    "name": "sportLog",
+    "slug": "sportLog",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
