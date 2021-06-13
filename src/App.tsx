@@ -1,6 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 import React from "react";
-import { StyleSheet, Text, View, SafeAreaView, StatusBar } from "react-native";
+import { View, SafeAreaView, StatusBar } from "react-native";
 import NoteEditor from "./screens/NoteEditor";
 import NoteList from "./screens/NoteList";
 import makeStyles from "./theme/makeStyles";
@@ -18,6 +18,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export type RootStackParamList = {
+  noteList: undefined;
+  noteEditor: { note: Note } | undefined;
+};
+
 export default function App(): JSX.Element {
   const styles = useStyles();
   return (
@@ -26,8 +31,8 @@ export default function App(): JSX.Element {
       <SafeAreaView style={styles.safeAreaView}>
         <NavigationContainer>
           <Stack.Navigator headerMode="none">
-            <Stack.Screen name="note-list" component={NoteList} />
-            <Stack.Screen name="note-editor" component={NoteEditor} />
+            <Stack.Screen name="noteList" component={NoteList} />
+            <Stack.Screen name="noteEditor" component={NoteEditor} />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaView>

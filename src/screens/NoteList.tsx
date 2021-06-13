@@ -1,8 +1,7 @@
 import * as React from "react";
-import { ScrollView } from "react-native";
-import { ImageStyle, TextStyle, View, ViewStyle } from "react-native";
+import { View } from "react-native";
 import makeStyles from "../theme/makeStyles";
-import { Theme } from "../theme/theme";
+import { Theme } from "../theme";
 import Icon from "../components/Icon";
 import Typography from "../components/Typography";
 import Space from "../components/VSpace";
@@ -15,6 +14,8 @@ import DraggableFlatList, {
 } from "react-native-draggable-flatlist";
 
 import { generateNotes } from "../mocks/generateNotes";
+import { RootStackParamList } from "../App";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 const useStyles = makeStyles((theme: Theme) => {
   return {
@@ -58,13 +59,16 @@ const useStyles = makeStyles((theme: Theme) => {
   };
 });
 
+type NoteListScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "noteEditor"
+>;
+
 interface Props {
-  navigation: unknown;
+  navigation: NoteListScreenNavigationProp;
 }
 
 const notesRaw = generateNotes(20);
-
-// console.log(notes);
 
 const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
   const [notes, setNotes] = React.useState(notesRaw);
@@ -75,22 +79,14 @@ const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
       <DraggableFlatList
         // debug
         data={notes}
-        renderItem={({
-          item,
-          drag,
-          isActive,
-          index,
-        }: RenderItemParams<Note>) => {
+        renderItem={({ item, drag, isActive }: RenderItemParams<Note>) => {
           const note: Note = item as Note;
           return (
             <TouchableOpacity
               key={note.id}
               onLongPress={drag}
-              onPress={() => navigation.navigate("note-editor")}
-              style={[
-                { backgroundColor: isActive && "red" },
-                styles.noteContainer,
-              ]}
+              onPress={() => navigation.navigate("noteEditor", { note })}
+              style={[{ opacity: isActive && 0.5 }, styles.noteContainer]}
             >
               <Icon
                 style={styles.noteDragIndicator}
@@ -112,42 +108,10 @@ const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
             </TouchableOpacity>
           );
         }}
-        keyExtractor={(item, index) => `draggable-item-${item.id}`}
-        onDragEnd={({ data }) => {
-          console.log(data);
-          setNotes(data);
-        }}
+        keyExtractor={(item) => `draggable-item-${item.id}`}
+        onDragEnd={({ data }) => setNotes(data)}
       />
-      {/* <ScrollView>
-        {notes.map((note) => {
-          return (
-            <TouchableOpacity
-              key={note.id}
-              onPress={() => navigation.navigate("note-editor")}
-              style={styles.noteContainer}
-            >
-              <Icon
-                style={styles.noteDragIndicator}
-                name="drag-indicator"
-              ></Icon>
-              <View style={styles.noteTextContent}>
-                <Typography type="body">{note.title}</Typography>
-                <View style={styles.subtitle}>
-                  <Typography type="subtitle">
-                    {note.author}
-                    {", "}
-                  </Typography>
-                  <Typography type="subtitle">
-                    {format(note.createdAt, "d.L.yyyy")}
-                  </Typography>
-                </View>
-              </View>
-              <Icon style={styles.noteArrowIcon} name="arrow-right"></Icon>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView> */}
-      {/* <View style={styles.headerContainer}>
+      <View style={styles.headerContainer}>
         <View style={styles.headerContentContainer}>
           <TouchableOpacity>
             <Icon name="menu" size={30} />
@@ -156,11 +120,11 @@ const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
           <Typography type="header">All notes</Typography>
         </View>
         <Hero
-          onPress={() => navigation.navigate("note-editor")}
+          onPress={() => navigation.navigate("noteEditor")}
           text="Add"
           style={styles.headerHero}
         />
-      </View> */}
+      </View>
     </Screen>
   );
 };

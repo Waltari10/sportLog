@@ -1,14 +1,14 @@
 import * as React from "react";
-import { Text } from "react-native";
-import { ImageStyle, TextStyle, View, ViewStyle } from "react-native";
 import makeStyles from "../theme/makeStyles";
-import { Theme, ThemeContext } from "../theme/ThemeProvider";
+import { Theme } from "../theme";
 import useTheme from "../theme/useTheme";
-import Typography from "../components/Typography";
 import Screen from "../components/Screen";
-import { Hero, Icon, HSpace } from "../components";
+import { Icon, HSpace } from "../components";
 import { TouchableOpacity } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
+import { RouteProp } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../App";
 
 const useStyles = makeStyles((theme: Theme) => {
   return {
@@ -26,16 +26,25 @@ const useStyles = makeStyles((theme: Theme) => {
   };
 });
 
+type NoteEditorScreenRouteProp = RouteProp<RootStackParamList, "noteEditor">;
+
+type NoteEditorScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "noteEditor"
+>;
+
 interface Props {
-  navigation: unknown;
+  navigation: NoteEditorScreenNavigationProp;
+  route: NoteEditorScreenRouteProp;
 }
 
-// TODO: Back button
-// TODO: title, and content input fields
-
-const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
-  const [title, setTitle] = React.useState("");
-  const [note, setNote] = React.useState("");
+const NoteEditor: React.FunctionComponent<Props> = ({
+  navigation,
+  route,
+}: Props) => {
+  const defaultNote = route?.params?.note;
+  const [title, setTitle] = React.useState(defaultNote?.title || "");
+  const [content, setContent] = React.useState(defaultNote?.note || "");
 
   const styles = useStyles();
   const theme = useTheme();
@@ -61,8 +70,8 @@ const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
       <TextInput
         style={styles.input}
         placeholder="Note"
-        value={note}
-        onChangeText={setNote}
+        value={content}
+        onChangeText={setContent}
         placeholderTextColor={theme.colors.grey65}
         editable
         multiline

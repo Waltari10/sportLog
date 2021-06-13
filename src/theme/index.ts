@@ -1,3 +1,5 @@
+import { TextStyle } from "react-native";
+
 interface Shape {
   round: 8;
 }
@@ -8,6 +10,13 @@ interface Colors {
   grey10: string;
   grey17: string;
   grey25: string;
+  grey65: string;
+}
+
+interface Fonts {
+  header: TextStyle;
+  body: TextStyle;
+  subtitle: TextStyle;
 }
 
 export interface Theme {
@@ -15,7 +24,7 @@ export interface Theme {
   colors: Colors;
   spacing: (size: number) => number;
   shape: Shape;
-  fonts: unknown;
+  fonts: Fonts;
 }
 
 const marginUnit = 8;
