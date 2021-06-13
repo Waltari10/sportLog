@@ -14,6 +14,7 @@
 - iOS
 - Not tested on Android
 - Does not persist notes (resets state when app closes)
+- eslint/prettier config
 
 ## How to install
 
