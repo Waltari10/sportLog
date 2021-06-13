@@ -17,7 +17,7 @@ const Typography: React.FunctionComponent<Props> = ({
   color,
   style,
   ...rest
-}) => {
+}: Props) => {
   const theme = useTheme();
   const styles = useStyles();
 

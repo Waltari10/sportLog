@@ -1,4 +1,5 @@
 import { TextStyle } from "react-native";
+import { ThemeContext } from "./ThemeProvider";
 
 interface Shape {
   round: 8;
@@ -19,6 +20,14 @@ interface Fonts {
   subtitle: TextStyle;
 }
 
+export interface ThemeContext {
+  toggleActiveTheme(): void;
+  getActiveTheme(): Theme;
+  activeTheme: "dark" | "light";
+  themeDark: Theme;
+  themeLight: Theme;
+}
+
 export interface Theme {
   type: "dark" | "light";
   colors: Colors;
@@ -29,7 +38,7 @@ export interface Theme {
 
 const marginUnit = 8;
 
-const theme: Theme = {
+const themeDark: Theme = {
   type: "dark",
   colors: {
     white: "#FFFFFF",
@@ -57,4 +66,40 @@ const theme: Theme = {
   },
 };
 
-export default theme;
+const themeLight: Theme = {
+  type: "light",
+  colors: {
+    white: "#1A1A1A",
+    background: "#ffffff",
+    grey10: "#E6E6E6",
+    grey17: "#D4D4D4",
+    grey25: "#BFBFBF",
+    grey65: "#595959",
+  },
+  spacing: (size) => size * marginUnit,
+  fonts: {
+    // Scale 1.250
+    header: {
+      fontSize: 25,
+    },
+    body: {
+      fontSize: 20,
+    },
+    subtitle: {
+      fontSize: 16,
+    },
+  },
+  shape: {
+    round: 8,
+  },
+};
+
+const themeContext: ThemeContext = {
+  themeDark,
+  themeLight,
+  activeTheme: "dark",
+  toggleActiveTheme: () => {},
+  getActiveTheme: () => ({} as Theme),
+};
+
+export default themeContext;

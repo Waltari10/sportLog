@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import makeStyles from "../theme/makeStyles";
 import { Theme } from "../theme";
 import Icon from "../components/Icon";
@@ -9,13 +9,14 @@ import { TouchableOpacity } from "react-native";
 import Screen from "../components/Screen";
 import { Hero } from "../components";
 import { format } from "date-fns";
-import DraggableFlatList, {
-  RenderItemParams,
-} from "react-native-draggable-flatlist";
 
-import { generateNotes } from "../mocks/generateNotes";
 import { RootStackParamList } from "../App";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { useGetNotes } from "../features/note/hooks";
+import LoadingIndicator from "../components/LoadingIndicator";
+import { useEffect } from "react";
+import { StateContext } from "../StateProvider";
+import useThemeState from "../theme/useThemeState";
 
 const useStyles = makeStyles((theme: Theme) => {
   return {
@@ -45,16 +46,22 @@ const useStyles = makeStyles((theme: Theme) => {
     noteDragIndicator: {
       position: "absolute",
     },
-    noteTextContent: {
-      marginLeft: theme.spacing(5),
-    },
     noteArrowIcon: {
       position: "absolute",
-      right: theme.spacing(2),
+      right: theme.spacing(1),
     },
     subtitle: {
       flexDirection: "row",
       color: theme.colors.grey65,
+    },
+    menu: {
+      borderRadius: theme.shape.round,
+      position: "absolute",
+      width: theme.spacing(20),
+      padding: theme.spacing(1),
+      backgroundColor: theme.colors.grey65,
+      bottom: theme.spacing(5),
+      left: theme.spacing(7),
     },
   };
 });
@@ -68,56 +75,56 @@ interface Props {
   navigation: NoteListScreenNavigationProp;
 }
 
-const notesRaw = generateNotes(20);
-
 const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
-  const [notes, setNotes] = React.useState(notesRaw);
+  // TODO: Implement error handling
+  const { notes, isLoading, reload } = useGetNotes();
+  const [showMenu, setShowMenu] = React.useState(false);
+
+  const theme = useThemeState();
+
+  const state = React.useContext(StateContext);
+  console.log(state);
+
+  useEffect(() => {
+    console.log("reload");
+    reload();
+  }, []);
 
   const styles = useStyles();
   return (
     <Screen>
-      <DraggableFlatList
-        // debug
-        data={notes}
-        renderItem={({ item, drag, isActive }: RenderItemParams<Note>) => {
-          const note: Note = item as Note;
-          return (
-            <TouchableOpacity
-              key={note.id}
-              onLongPress={drag}
-              onPress={() => navigation.navigate("noteEditor", { note })}
-              style={[{ opacity: isActive && 0.5 }, styles.noteContainer]}
-            >
-              <Icon
-                style={styles.noteDragIndicator}
-                name="drag-indicator"
-              ></Icon>
-              <View style={styles.noteTextContent}>
-                <Typography type="body">{note.title}</Typography>
-                <View style={styles.subtitle}>
-                  <Typography type="subtitle">
-                    {note.author}
-                    {", "}
-                  </Typography>
-                  <Typography type="subtitle">
-                    {format(note.createdAt, "d.L.yyyy")}
-                  </Typography>
-                </View>
+      <ScrollView>
+        {notes.map((note) => (
+          <TouchableOpacity
+            key={note.id}
+            onPress={() => navigation.navigate("noteEditor", { note })}
+            style={styles.noteContainer}
+          >
+            <View>
+              <Typography type="body">{note.title}</Typography>
+              <View style={styles.subtitle}>
+                <Typography type="subtitle">
+                  {note.author}
+                  {", "}
+                </Typography>
+                <Typography type="subtitle">
+                  {!!note.createdAt && format(note.createdAt, "d.L.yyyy")}
+                </Typography>
               </View>
-              <Icon style={styles.noteArrowIcon} name="arrow-right"></Icon>
-            </TouchableOpacity>
-          );
-        }}
-        keyExtractor={(item) => `draggable-item-${item.id}`}
-        onDragEnd={({ data }) => setNotes(data)}
-      />
+            </View>
+            <Icon style={styles.noteArrowIcon} name="arrow-right"></Icon>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
       <View style={styles.headerContainer}>
         <View style={styles.headerContentContainer}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
             <Icon name="menu" size={30} />
           </TouchableOpacity>
           <Space size={2} />
           <Typography type="header">All notes</Typography>
+          <Space size={2} />
+          {isLoading && <LoadingIndicator />}
         </View>
         <Hero
           onPress={() => navigation.navigate("noteEditor")}
@@ -125,6 +132,18 @@ const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
           style={styles.headerHero}
         />
       </View>
+      {showMenu && (
+        <View style={styles.menu}>
+          <TouchableOpacity
+            onPress={() => {
+              theme.toggleActiveTheme();
+              setShowMenu(false);
+            }}
+          >
+            <Typography type="body">Toggle theme</Typography>
+          </TouchableOpacity>
+        </View>
+      )}
     </Screen>
   );
 };

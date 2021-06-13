@@ -1,6 +1,5 @@
 import Chance from "chance";
 
-// Instantiate Chance so it can be used
 const chance = new Chance();
 
 export const generateNotes = (count: number) => {
@@ -8,13 +7,12 @@ export const generateNotes = (count: number) => {
 
   for (let i = 0; i < count; i++) {
     notes.push({
-      key: `${Math.random()}${Math.random()}${Math.random()}`,
-      id: `${Math.random()}${Math.random()}${Math.random()}`,
-      createdAt: new Date(),
+      id: chance.guid(),
+      createdAt: chance.date({ year: 2020, string: false }) as Date,
       index: i,
       author: chance.name(),
       title: chance.sentence({ words: 4 }),
-      note: chance.paragraph({ sentences: 5 }),
+      content: chance.paragraph({ sentences: 5 }),
     });
   }
   return notes;

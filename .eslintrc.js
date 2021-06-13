@@ -21,6 +21,7 @@ module.exports = {
   rules: {
     // "react/jsx-tag-spacing": 2,
     "@typescript-eslint/explicit-module-boundary-types": 0,
+    "@typescript-eslint/no-empty-function": 0,
     "no-trailing-spaces": 2,
   },
 };

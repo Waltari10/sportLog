@@ -1,6 +1,5 @@
 import { StyleSheet, ImageStyle, TextStyle, ViewStyle } from "react-native";
 import { Theme } from ".";
-
 import useTheme from "./useTheme";
 
 type Style = ViewStyle | TextStyle | ImageStyle;
