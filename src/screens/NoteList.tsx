@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
 import makeStyles from "../theme/makeStyles";
 import { Theme } from "../theme";
 import Icon from "../components/Icon";
@@ -15,6 +15,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { useGetNotes } from "../features/note/hooks";
 import LoadingIndicator from "../components/LoadingIndicator";
 import useThemeState from "../theme/useThemeState";
+import { FlatList } from "react-native";
 
 const useStyles = makeStyles((theme: Theme) => {
   return {
@@ -83,29 +84,35 @@ const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
   const styles = useStyles();
   return (
     <Screen>
-      <ScrollView>
-        {notes.map((note) => (
-          <TouchableOpacity
-            key={note.id}
-            onPress={() => navigation.navigate("noteEditor", { note })}
-            style={styles.noteContainer}
-          >
-            <View>
-              <Typography type="body">{note.title}</Typography>
-              <View style={styles.subtitle}>
-                <Typography type="subtitle">
-                  {note.author}
-                  {", "}
-                </Typography>
-                <Typography type="subtitle">
-                  {!!note.createdAt && format(note.createdAt, "d.L.yyyy")}
-                </Typography>
+      <FlatList
+        data={notes}
+        renderItem={({ item: note }: { item: Note }) => {
+          console.log(note);
+          return (
+            <TouchableOpacity
+              key={note.id}
+              onPress={() => navigation.navigate("noteEditor", { note })}
+              style={styles.noteContainer}
+            >
+              <View>
+                <Typography type="body">{note.title}</Typography>
+                <View style={styles.subtitle}>
+                  <Typography type="subtitle">
+                    {note.author}
+                    {", "}
+                  </Typography>
+                  <Typography type="subtitle">
+                    {!!note.createdAt && format(note.createdAt, "d.L.yyyy")}
+                  </Typography>
+                </View>
               </View>
-            </View>
-            <Icon style={styles.noteArrowIcon} name="arrow-right"></Icon>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+              <Icon style={styles.noteArrowIcon} name="arrow-right"></Icon>
+            </TouchableOpacity>
+          );
+        }}
+        keyExtractor={(item) => item.id}
+      />
+
       <View style={styles.headerContainer}>
         <View style={styles.headerContentContainer}>
           <TouchableOpacity onPress={() => setShowMenu(!showMenu)}>

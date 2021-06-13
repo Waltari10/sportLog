@@ -11,7 +11,7 @@ export const getNotes = (): Promise<Note[] | undefined> => {
     setTimeout(() => {
       try {
         if (backendPretendNoteDataBase.length === 0) {
-          backendPretendNoteDataBase = generateNotes(20);
+          backendPretendNoteDataBase = generateNotes(2000);
         }
 
         res(backendPretendNoteDataBase);
