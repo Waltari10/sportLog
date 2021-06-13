@@ -22,4 +22,5 @@
 - yarn
 - pod install in ios folder
 - yarn ios
+- npm start
 - Voila!
