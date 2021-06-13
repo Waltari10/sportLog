@@ -77,18 +77,10 @@ interface Props {
 
 const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
   // TODO: Implement error handling
-  const { notes, isLoading, reload } = useGetNotes();
+  const { notes, isLoading } = useGetNotes();
   const [showMenu, setShowMenu] = React.useState(false);
 
   const theme = useThemeState();
-
-  const state = React.useContext(StateContext);
-  console.log(state);
-
-  useEffect(() => {
-    console.log("reload");
-    reload();
-  }, []);
 
   const styles = useStyles();
   return (
