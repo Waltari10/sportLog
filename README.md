@@ -5,6 +5,7 @@
 - Add note
 - Modify note
 - List notes
+- Note saves changes automatically after 1 second
 - Dark and light mode
 - Cool styling solution
 - loading indicators
