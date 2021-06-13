@@ -18,33 +18,34 @@ export const getNotes = (): Promise<Note[] | undefined> => {
       } catch (err) {
         rej(err);
       }
-    }, 1000);
+    }, 2000);
   });
 };
 
 export const saveNote = (note: Note): Promise<Note> => {
   return new Promise((res, rej) => {
     setTimeout(() => {
+      let newNote = { ...note };
       try {
         const noteIndexInArr = backendPretendNoteDataBase.findIndex(
           (n) => n.id === note.id
         );
-
         if (noteIndexInArr === -1) {
           // Simulates backend adding createdAt, index and id...
-          backendPretendNoteDataBase.unshift({
-            ...note,
+          newNote = {
+            ...newNote,
             index: backendPretendNoteDataBase.length,
             id: chance.guid(),
             createdAt: new Date(),
-          });
+          };
+          backendPretendNoteDataBase.unshift(newNote);
         } else {
           backendPretendNoteDataBase[noteIndexInArr] = note;
         }
       } catch (err) {
         rej(err);
       }
-      res(note);
+      res(newNote);
     }, 1000);
   });
 };

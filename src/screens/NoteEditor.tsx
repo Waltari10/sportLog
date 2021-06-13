@@ -9,7 +9,7 @@ import { TextInput } from "react-native-gesture-handler";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../App";
-import { useSaveNote } from "../features/note/hooks";
+import { useGetNote, useSaveNote } from "../features/note/hooks";
 import { useDebounce } from "../hooks";
 import LoadingIndicator from "../components/LoadingIndicator";
 import Typography from "../components/Typography";
@@ -49,9 +49,12 @@ const NoteEditor: React.FunctionComponent<Props> = ({
   navigation,
   route,
 }: Props) => {
-  const defaultNote = route?.params?.note;
-  const [title, setTitle] = React.useState(defaultNote?.title || "");
-  const [content, setContent] = React.useState(defaultNote?.content || "");
+  const [noteId, setNoteId] = React.useState(route?.params?.note?.id);
+
+  const stateNote = useGetNote(noteId);
+
+  const [title, setTitle] = React.useState(stateNote?.title || "");
+  const [content, setContent] = React.useState(stateNote?.content || "");
   // TODO: Implement error handling
   const { saveNote, isLoading, isSuccess } = useSaveNote();
 
@@ -62,7 +65,7 @@ const NoteEditor: React.FunctionComponent<Props> = ({
     // Saving automatically after 1 second of inactivity
 
     const noteToSave = {
-      ...defaultNote,
+      ...stateNote,
       title,
       content,
     };
@@ -74,7 +77,13 @@ const NoteEditor: React.FunctionComponent<Props> = ({
       noteToSave.createdAt = new Date();
     }
 
-    debouncedSaveNote(noteToSave);
+    const promise = debouncedSaveNote(noteToSave);
+
+    if (promise) {
+      promise.then((note: Note) => {
+        setNoteId(note.id);
+      });
+    }
   };
 
   const styles = useStyles();

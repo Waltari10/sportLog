@@ -14,8 +14,6 @@ import { RootStackParamList } from "../App";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useGetNotes } from "../features/note/hooks";
 import LoadingIndicator from "../components/LoadingIndicator";
-import { useEffect } from "react";
-import { StateContext } from "../StateProvider";
 import useThemeState from "../theme/useThemeState";
 
 const useStyles = makeStyles((theme: Theme) => {

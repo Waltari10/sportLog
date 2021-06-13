@@ -19,6 +19,12 @@ interface UseSaveNoteRes {
   error: unknown | undefined;
 }
 
+export const useGetNote = (noteId?: string): Note | undefined => {
+  const appState = useAppState();
+
+  return appState.notes.find((n) => n.id === noteId);
+};
+
 export const useGetNotes = (): UseGetNotesRes => {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
