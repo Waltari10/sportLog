@@ -18,10 +18,11 @@ import Sharedb from "sharedb/lib/client";
 //@ts-ignore
 import richText from "rich-text";
 import { applyDelta, parseDelta } from "../features/note/utils";
-// import { ws } from "../websocket";
 
 import { useEffect } from "react";
 import diff from "fast-diff";
+import { Error } from "sharedb";
+import { Socket } from "sharedb/lib/sharedb";
 
 const uid = "user";
 
@@ -67,8 +68,7 @@ const NoteEditor: React.FunctionComponent<Props> = ({
   navigation,
   route,
 }: Props) => {
-  console.log("render note editor");
-  const noteId = route?.params?.note?.id;
+  const noteId = route.params.note.id;
 
   const stateNote = useGetNote(noteId);
 
@@ -82,7 +82,7 @@ const NoteEditor: React.FunctionComponent<Props> = ({
     const noteToSave = {
       ...stateNote,
       title,
-      content,
+      // content,
     };
     debouncedSaveNote(noteToSave);
   };
@@ -102,7 +102,6 @@ const NoteEditor: React.FunctionComponent<Props> = ({
 
   useEffect(() => {
     prevTextRef.current = text;
-    console.log("useEffect source", text.source);
 
     if (
       text.value !== prevText?.value &&
@@ -111,20 +110,24 @@ const NoteEditor: React.FunctionComponent<Props> = ({
       text.source === uid
     ) {
       const delta = parseDelta(diff(prevText?.value || "", text.value));
-      console.log("submit op", delta);
       doc &&
-        doc.submitOp({ ...delta, docId: noteId }, { source: uid }, (foo) =>
-          console.log(foo, "sent")
+        doc.submitOp(
+          { ...delta, docId: noteId },
+          { source: uid },
+          (err: Error) => {
+            if (err) {
+              console.error(err);
+            }
+          }
         );
     }
   }, [text]);
 
   useEffect(() => {
-    console.log("useffect");
-    // CReate new connection jsut for editing...
+    // Create new connection just for editing...
     const ws = new WebSocket("ws://localhost:8080");
 
-    const connection = new Sharedb.Connection(ws);
+    const connection = new Sharedb.Connection(ws as Socket);
 
     doc = connection.get("documents", noteId);
 
@@ -141,17 +144,13 @@ const NoteEditor: React.FunctionComponent<Props> = ({
       );
 
       doc.subscribe((err) => {
-        console.log("subscribe tryr", err);
         if (err) throw err;
 
-        console.log("on subscribe");
         if (doc?.data?.ops?.length > 0) {
-          console.log(doc?.data?.ops);
           setText({ value: doc.data.ops[0].insert || "", source: uid }); // Always only has insert delta at first...
         }
 
         doc.on("op", (delta: any, source) => {
-          console.log("op", source);
           if (source === uid || !delta || !delta.ops || !delta.ops.length) {
             return;
           }
@@ -164,6 +163,7 @@ const NoteEditor: React.FunctionComponent<Props> = ({
     };
     return () => {
       connection.close();
+      ws.close();
     };
   }, []);
 
@@ -191,7 +191,6 @@ const NoteEditor: React.FunctionComponent<Props> = ({
         editable
         multiline
       />
-      {/* TODO: Turn into rich text input */}
       <HSpace size={2} />
       <TextInput
         style={styles.input}

@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
 
 export type RootStackParamList = {
   noteList: undefined;
-  noteEditor: { note: Note } | undefined;
+  noteEditor: { note: Note };
 };
 
 export default function App(): JSX.Element {

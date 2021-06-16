@@ -2,7 +2,8 @@
   "main": "index.js",
   "scripts": {
     "android": "react-native run-android",
-    "ios": "react-native run-ios --simulator=\"iPhone 12\"",
+    "ios12": "react-native run-ios --simulator=\"iPhone 12\"",
+    "ios": "react-native run-ios",
     "web": "expo start --web",
     "start": "react-native start",
     "lint": "eslint .",

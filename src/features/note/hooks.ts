@@ -39,7 +39,6 @@ export const useSaveNote = (): UseSaveNoteRes => {
 
     try {
       const res = await saveNoteAPICall(note);
-      console.log("res", res);
       setIsSuccess(true);
       appState.saveNote(res);
       return res;

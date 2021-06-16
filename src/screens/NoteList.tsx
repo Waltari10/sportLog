@@ -76,7 +76,7 @@ interface Props {
 
 const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
   // TODO: Implement error handling
-  const { notes, isLoading } = useGetNotes();
+  const { notes, reload, isLoading } = useGetNotes();
   const { saveNote, isLoading: isLoadingSave } = useSaveNote();
   const [showMenu, setShowMenu] = React.useState(false);
 
@@ -126,10 +126,11 @@ const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
         </View>
         <Hero
           onPress={() => {
-            saveNote({ id: "test" })
+            saveNote({ author: "Ville Valmentaja" })
               .then((note) => {
                 if (note) {
                   navigation.navigate("noteEditor", { note });
+                  reload();
                 } else {
                   console.error("error adding new note!");
                 }
