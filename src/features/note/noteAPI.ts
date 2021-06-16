@@ -1,51 +1,34 @@
-import { Chance } from "chance";
-import { generateNotes } from "../../mocks/generateNotes";
+import axios from "axios";
+import { ws } from "../../websocket";
 
-const chance = new Chance();
+const host = "http://localhost:8090";
 
-// Just keep notes in memory for demo purposes...
-let backendPretendNoteDataBase: Note[] = [];
+export const getNotes = async (): Promise<Note[]> => {
+  try {
+    const res = await axios.get(host + "/getNotes");
 
-export const getNotes = (): Promise<Note[] | undefined> => {
-  return new Promise((res, rej) => {
-    setTimeout(() => {
-      try {
-        if (backendPretendNoteDataBase.length === 0) {
-          backendPretendNoteDataBase = generateNotes(2000);
-        }
-
-        res(backendPretendNoteDataBase);
-      } catch (err) {
-        rej(err);
-      }
-    }, 2000);
-  });
+    return res.data as Note[];
+  } catch (err) {
+    return err;
+  }
 };
 
-export const saveNote = (note: Note): Promise<Note> => {
-  return new Promise((res, rej) => {
-    setTimeout(() => {
-      let newNote = { ...note };
-      try {
-        const noteIndexInArr = backendPretendNoteDataBase.findIndex(
-          (n) => n.id === note.id
-        );
-        if (noteIndexInArr === -1) {
-          // Simulates backend adding createdAt, index and id...
-          newNote = {
-            ...newNote,
-            index: backendPretendNoteDataBase.length,
-            id: chance.guid(),
-            createdAt: new Date(),
-          };
-          backendPretendNoteDataBase.unshift(newNote);
-        } else {
-          backendPretendNoteDataBase[noteIndexInArr] = note;
-        }
-      } catch (err) {
-        rej(err);
-      }
-      res(newNote);
-    }, 1000);
-  });
+export const saveNote = async (note: Note): Promise<Note> => {
+  try {
+    console.log("note", note);
+    const res = await axios.post(host + "/saveNote", note);
+    console.log("save note res", res);
+
+    return res.data as Note;
+  } catch (err) {
+    return err;
+  }
+};
+
+export const saveNoteWS = (note: Note): void => {
+  try {
+    ws.send(JSON.stringify({ type: "SAVE_NOTE", payload: { note } }));
+  } catch (err) {
+    console.log("Error save note WS ", err);
+  }
 };

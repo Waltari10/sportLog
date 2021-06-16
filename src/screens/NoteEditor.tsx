@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import makeStyles from "../theme/makeStyles";
 import { Theme } from "../theme";
@@ -12,7 +14,16 @@ import { RootStackParamList } from "../App";
 import { useGetNote, useSaveNote } from "../features/note/hooks";
 import { useDebounce } from "../hooks";
 import LoadingIndicator from "../components/LoadingIndicator";
-import Typography from "../components/Typography";
+import Sharedb from "sharedb/lib/client";
+//@ts-ignore
+import richText from "rich-text";
+import { applyDelta, parseDelta } from "../features/note/utils";
+// import { ws } from "../websocket";
+
+import { useEffect } from "react";
+import diff from "fast-diff";
+
+const uid = "user";
 
 const useStyles = makeStyles((theme: Theme) => {
   return {
@@ -45,49 +56,116 @@ interface Props {
   route: NoteEditorScreenRouteProp;
 }
 
+type TextValue = {
+  source: string | null;
+  value: string | null;
+};
+
+let doc: Sharedb.Connection;
+
 const NoteEditor: React.FunctionComponent<Props> = ({
   navigation,
   route,
 }: Props) => {
-  const [noteId, setNoteId] = React.useState(route?.params?.note?.id);
+  console.log("render note editor");
+  const noteId = route?.params?.note?.id;
 
   const stateNote = useGetNote(noteId);
 
   const [title, setTitle] = React.useState(stateNote?.title || "");
-  const [content, setContent] = React.useState(stateNote?.content || "");
-  // TODO: Implement error handling
-  const { saveNote, isLoading, isSuccess } = useSaveNote();
+
+  const { saveNote, isLoading } = useSaveNote();
 
   const debouncedSaveNote = useDebounce(saveNote, 1000);
 
   const onAnyChange = () => {
-    // Creates new note in DB, if doesn't exist...
-    // Saving automatically after 1 second of inactivity
-
     const noteToSave = {
       ...stateNote,
       title,
       content,
     };
-
-    if (!noteToSave.author) {
-      // TODO: Lets pretend I'm logged in...
-      noteToSave.author = "Valtteri Laine";
-      // if no createdAt then created now
-      noteToSave.createdAt = new Date();
-    }
-
-    const promise = debouncedSaveNote(noteToSave);
-
-    if (promise) {
-      promise.then((note: Note) => {
-        setNoteId(note.id);
-      });
-    }
+    debouncedSaveNote(noteToSave);
   };
 
   const styles = useStyles();
   const theme = useTheme();
+
+  const [text, setText] = React.useState<TextValue>({
+    source: null,
+    value: null,
+  });
+
+  const curTextRef = React.useRef<TextValue>({ value: "", source: "" });
+  curTextRef.current = text;
+  const prevTextRef = React.useRef<TextValue>({ value: "", source: "" });
+  const prevText = prevTextRef.current;
+
+  useEffect(() => {
+    prevTextRef.current = text;
+    console.log("useEffect source", text.source);
+
+    if (
+      text.value !== prevText?.value &&
+      typeof text.value === "string" &&
+      typeof prevText?.value === "string" &&
+      text.source === uid
+    ) {
+      const delta = parseDelta(diff(prevText?.value || "", text.value));
+      console.log("submit op", delta);
+      doc &&
+        doc.submitOp({ ...delta, docId: noteId }, { source: uid }, (foo) =>
+          console.log(foo, "sent")
+        );
+    }
+  }, [text]);
+
+  useEffect(() => {
+    console.log("useffect");
+    // CReate new connection jsut for editing...
+    const ws = new WebSocket("ws://localhost:8080");
+
+    const connection = new Sharedb.Connection(ws);
+
+    doc = connection.get("documents", noteId);
+
+    Sharedb.types.register(richText.type);
+
+    ws.onopen = () => {
+      ws.send(
+        JSON.stringify({
+          type: "OPEN_CONNECTION_TO_DOC",
+          payload: {
+            docId: noteId,
+          },
+        })
+      );
+
+      doc.subscribe((err) => {
+        console.log("subscribe tryr", err);
+        if (err) throw err;
+
+        console.log("on subscribe");
+        if (doc?.data?.ops?.length > 0) {
+          console.log(doc?.data?.ops);
+          setText({ value: doc.data.ops[0].insert || "", source: uid }); // Always only has insert delta at first...
+        }
+
+        doc.on("op", (delta: any, source) => {
+          console.log("op", source);
+          if (source === uid || !delta || !delta.ops || !delta.ops.length) {
+            return;
+          }
+
+          const newString = applyDelta(delta, curTextRef?.current?.value);
+
+          setText({ value: newString, source: "" });
+        });
+      });
+    };
+    return () => {
+      connection.close();
+    };
+  }, []);
 
   return (
     <Screen style={styles.screen}>
@@ -98,7 +176,6 @@ const NoteEditor: React.FunctionComponent<Props> = ({
         <VSpace size={2} />
         {isLoading && <LoadingIndicator />}
         <VSpace size={2} />
-        {!isLoading && isSuccess && <Typography type="body">Saved!</Typography>}
       </View>
       <HSpace size={4} />
       <TextInput
@@ -119,9 +196,9 @@ const NoteEditor: React.FunctionComponent<Props> = ({
       <TextInput
         style={styles.input}
         placeholder="Note"
-        value={content}
+        value={text?.value || ""}
         onChangeText={(text) => {
-          setContent(text);
+          setText({ value: text, source: uid });
           onAnyChange();
         }}
         placeholderTextColor={theme.colors.grey65}

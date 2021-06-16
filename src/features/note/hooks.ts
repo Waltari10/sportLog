@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAppState } from "../../StateProvider";
-import { getNotes, saveNote as SaveNoteAPICall } from "./noteAPI";
+import { getNotes, saveNote as saveNoteAPICall } from "./noteAPI";
 
 interface UseGetNotesRes {
   notes: Note[];
@@ -25,12 +25,41 @@ export const useGetNote = (noteId?: string): Note | undefined => {
   return appState.notes.find((n) => n.id === noteId);
 };
 
+export const useSaveNote = (): UseSaveNoteRes => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState<unknown>();
+  const appState = useAppState();
+
+  const saveNote = async (note: Note) => {
+    setIsLoading(true);
+    setIsError(false);
+    setIsSuccess(false);
+
+    try {
+      const res = await saveNoteAPICall(note);
+      console.log("res", res);
+      setIsSuccess(true);
+      appState.saveNote(res);
+      return res;
+    } catch (err) {
+      setError(err);
+      setIsError(true);
+      setIsSuccess(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { saveNote, isLoading, isError, isSuccess, error };
+};
+
 export const useGetNotes = (): UseGetNotesRes => {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<unknown>();
-
   const appState = useAppState();
 
   const effectCallBack = () => {
@@ -51,7 +80,6 @@ export const useGetNotes = (): UseGetNotesRes => {
   };
 
   useEffect(effectCallBack, []);
-
   return {
     notes: appState.notes,
     isLoading,
@@ -60,33 +88,4 @@ export const useGetNotes = (): UseGetNotesRes => {
     error,
     reload: effectCallBack,
   };
-};
-
-export const useSaveNote = (): UseSaveNoteRes => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<unknown>();
-  const appState = useAppState();
-
-  const saveNote = async (note: Note) => {
-    setIsLoading(true);
-    setIsError(false);
-    setIsSuccess(false);
-
-    try {
-      const res = await SaveNoteAPICall(note);
-      setIsSuccess(true);
-      appState.saveNote(res);
-      return res;
-    } catch (err) {
-      setError(err);
-      setIsError(true);
-      setIsSuccess(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { saveNote, isLoading, isError, isSuccess, error };
 };

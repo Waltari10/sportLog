@@ -12,7 +12,7 @@ import { format } from "date-fns";
 
 import { RootStackParamList } from "../App";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { useGetNotes } from "../features/note/hooks";
+import { useGetNotes, useSaveNote } from "../features/note/hooks";
 import LoadingIndicator from "../components/LoadingIndicator";
 import useThemeState from "../theme/useThemeState";
 import { FlatList } from "react-native";
@@ -77,6 +77,7 @@ interface Props {
 const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
   // TODO: Implement error handling
   const { notes, isLoading } = useGetNotes();
+  const { saveNote, isLoading: isLoadingSave } = useSaveNote();
   const [showMenu, setShowMenu] = React.useState(false);
 
   const theme = useThemeState();
@@ -87,7 +88,6 @@ const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
       <FlatList
         data={notes}
         renderItem={({ item: note }: { item: Note }) => {
-          console.log(note);
           return (
             <TouchableOpacity
               key={note.id}
@@ -102,7 +102,8 @@ const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
                     {", "}
                   </Typography>
                   <Typography type="subtitle">
-                    {!!note.createdAt && format(note.createdAt, "d.L.yyyy")}
+                    {!!note.createdAt &&
+                      format(new Date(note.createdAt), "d.L.yyyy")}
                   </Typography>
                 </View>
               </View>
@@ -121,10 +122,20 @@ const NoteEditor: React.FunctionComponent<Props> = ({ navigation }: Props) => {
           <Space size={2} />
           <Typography type="header">All notes</Typography>
           <Space size={2} />
-          {isLoading && <LoadingIndicator />}
+          {(isLoading || isLoadingSave) && <LoadingIndicator />}
         </View>
         <Hero
-          onPress={() => navigation.navigate("noteEditor")}
+          onPress={() => {
+            saveNote({ id: "test" })
+              .then((note) => {
+                if (note) {
+                  navigation.navigate("noteEditor", { note });
+                } else {
+                  console.error("error adding new note!");
+                }
+              })
+              .catch((err) => console.error("err adding new note", err));
+          }}
           text="Add"
           style={styles.headerHero}
         />
