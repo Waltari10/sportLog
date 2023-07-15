@@ -1,7 +1,7 @@
 import * as React from "react";
 import { View } from "react-native";
 
-import { useTheme } from "../../theme/useTheme";
+import { useTheme } from "../../theme/hooks";
 
 type Props = {
   size: number;

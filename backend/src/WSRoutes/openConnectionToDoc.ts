@@ -6,7 +6,7 @@ const WebSocketJSONStream = require("@teamwork/websocket-json-stream");
 ShareDB.types.register(require("rich-text").type);
 const shareDBServer = new ShareDB();
 
-export default (ws: WebSocket, action: any) => {
+export const openConnectionToDoc = (ws: WebSocket, action: any) => {
   const docId = action.payload.docId;
 
   const connection = shareDBServer.connect();

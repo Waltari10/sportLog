@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    /* Enable incremental compilation */
+    "incremental": true,
+    /* Specifies the version of the produced Javascript code */
+    "target": "ES2021",
+    /* Specified the module code to be emitted. We still use commonJS because several parts of the ecosystem we use are not ready for the ESM transition. */
+    "module": "CommonJS",
+    /* What libraries are bundled to the runtime environment */
+    "lib": [
+      "ES2021"
+    ],
+    /* Emitted JS goes here */
+    "outDir": "dist",
+    /* Strict Type-Checking Options */
+    "strict": true,
+    /* Type declaration files to be included in compilation. */
+    "types": [
+      "node",
+      "jest"
+    ],
+    /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
+    "esModuleInterop": true,
+    "skipLibCheck": true /* Skip type checking of declaration files. */,
+    "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
+    "baseUrl": "./src" /* Base directory to resolve non-absolute module names. */,
+    /* Makes sure that array[2] can also be undefined if you don't check first. */
+    "noUncheckedIndexedAccess": true,
+    /* Makes sure that if it's a record you use record['x'] instead of record.x, so you can see quickly the difference between an object and a record. */
+    "noPropertyAccessFromIndexSignature": true,
+    /* Makes sure that undefined is included in function return type if there is path without `return`. */
+    "noImplicitReturns": true,
+    /* Forces you to specify "override" when overriding parent class properties */
+    "noImplicitOverride": true,
+    // These aliases are run-time transformed during development by `ts-node-dev`
+    "paths": {
+      "@common/*": [
+        "../../common/src/*"
+      ]
+    }
+  }
+}

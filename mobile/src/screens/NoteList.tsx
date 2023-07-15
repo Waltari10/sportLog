@@ -4,8 +4,8 @@ import { TouchableOpacity } from "react-native";
 import { FlatList } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { format } from "date-fns";
+import { RootStackParamList } from "Navigation";
 
-import { RootStackParamList } from "../App";
 import { HSpace } from "../components/atoms/HSpace";
 import { Icon } from "../components/atoms/Icon";
 import { Screen } from "../components/atoms/Screen";
@@ -15,9 +15,9 @@ import { Hero } from "../components/molecules/Hero";
 import { LoadingIndicator } from "../components/molecules/LoadingIndicator";
 import { useGetNotes, useSaveNote } from "../features/note/hooks";
 import { Logger } from "../library/logger";
+import { useToggleTheme } from "../theme/hooks";
 import { makeStyles } from "../theme/makeStyles";
 import { Theme } from "../theme/theme";
-import { useThemeState } from "../theme/useThemeState";
 
 const useStyles = makeStyles((theme: Theme) => {
   return {
@@ -82,7 +82,7 @@ export const NoteList = ({ navigation }: Props) => {
   const { saveNote, isLoading: isLoadingSave } = useSaveNote();
   const [showMenu, setShowMenu] = React.useState(false);
 
-  const theme = useThemeState();
+  const toggleTheme = useToggleTheme();
 
   const styles = useStyles();
   return (
@@ -148,7 +148,7 @@ export const NoteList = ({ navigation }: Props) => {
         <View style={styles.menu}>
           <TouchableOpacity
             onPress={() => {
-              theme.toggleTheme();
+              toggleTheme();
               setShowMenu(false);
             }}
           >

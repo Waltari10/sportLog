@@ -2,22 +2,33 @@ const insertStringToStringAt = (a: string, b: string, position: number) => {
   return [a.slice(0, position), b, a.slice(position)].join("");
 };
 
-export const applyDelta = (delta: any, inputString: string | null = "") => {
+type Delta = [number, string];
+
+type Operations = {
+  retain?: number;
+  insert?: string;
+  delete?: number;
+};
+
+export const applyOperations = (
+  delta: { ops: Operations[] },
+  inputString: string | null = ""
+) => {
   let retainFromStart = 0;
 
   let tempString = inputString;
 
-  delta.ops.forEach((op: any) => {
+  delta.ops.forEach((op: Operations) => {
     if (op.retain) {
       retainFromStart = retainFromStart + op.retain;
-    } else if (op.insert) {
+    } else if (op.insert && typeof tempString === "string") {
       tempString = insertStringToStringAt(
         tempString,
         op.insert as string,
         retainFromStart
       );
       retainFromStart = retainFromStart + (op.insert as string).length;
-    } else if (op.delete) {
+    } else if (op.delete && typeof tempString === "string") {
       tempString =
         tempString.substring(0, retainFromStart) +
         tempString.substring(retainFromStart + op.delete, tempString.length);
@@ -28,9 +39,9 @@ export const applyDelta = (delta: any, inputString: string | null = "") => {
   return tempString;
 };
 
-export const parseDelta = (diffArr: any) => {
-  const ops = diffArr.map((diff: any) => {
-    const op: any = {};
+export const parseDelta = (diffArr: Delta[]) => {
+  const ops = diffArr.map((diff: Delta) => {
+    const op: Operations = {};
 
     if (diff[0] === 0) {
       op.retain = diff[1].length;

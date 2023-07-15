@@ -1,12 +1,17 @@
 import WebSocket from "ws";
 import { wsRoutes } from "./WSRoutes";
 import { WSAction } from "./WSRoutes/types";
+import { Chance } from "chance";
+import { UID } from '@common/constants'
 
 import express from "express";
 import { notes } from "./notesDB";
-import { Note } from "./types";
-import chance from "./chance";
+import { Note } from "@common/types";
+
+const chance = new Chance();
+
 const bodyParser = require("body-parser");
+console.log({UID})
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));

@@ -1,16 +1,17 @@
 import * as React from "react";
+import { Note } from "@common/types";
 
-interface State {
+type State = {
   connected: boolean;
   setConnected: (connected: boolean) => void;
-  notes: Note[];
   setNotes: (notes: Note[]) => void;
   saveNote: (note: Note) => void;
-}
+  notes: Note[];
+};
 
 const initialState: State = {
-  setConnected: () => {},
   connected: false,
+  setConnected: () => {},
   setNotes: () => {},
   saveNote: () => {},
   notes: [],
@@ -22,38 +23,36 @@ type Props = {
 
 export const StateContext = React.createContext(initialState);
 
-const StateProvider = (props: Props) => {
+export const StateProvider = (props: Props) => {
   const [state, setState] = React.useState(initialState);
 
-  const setNotes = (notes: Note[]) => {
-    setState({ ...state, notes });
-  };
+  const value = React.useMemo(
+    () => ({
+      ...state,
+      saveNote: (note: Note) => {
+        const newNotes = [...state.notes];
 
-  const saveNote = (note: Note) => {
-    const newNotes = [...state.notes];
+        const noteIndexInArr = state.notes.findIndex(n => n.id === note.id);
 
-    const noteIndexInArr = state.notes.findIndex(n => n.id === note.id);
+        if (noteIndexInArr === -1) {
+          newNotes.unshift({
+            ...note,
+          });
+        } else {
+          newNotes[noteIndexInArr] = note;
+        }
 
-    if (noteIndexInArr === -1) {
-      newNotes.unshift({
-        ...note,
-      });
-    } else {
-      newNotes[noteIndexInArr] = note;
-    }
-
-    setState({ ...state, notes: newNotes });
-  };
-
-  return (
-    <StateContext.Provider
-      value={{ ...state, setNotes, saveNote }}
-      {...props}
-    />
+        setState({ ...state, notes: newNotes });
+      },
+      setNotes: (notes: Note[]) => {
+        setState({ ...state, notes });
+      },
+    }),
+    [state]
   );
-};
 
-export default StateProvider;
+  return <StateContext.Provider value={value} {...props} />;
+};
 
 export const useAppState = () => {
   return React.useContext(StateContext);

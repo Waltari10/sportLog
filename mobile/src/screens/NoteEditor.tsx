@@ -5,6 +5,7 @@ import { TextInput } from "react-native-gesture-handler";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import diff from "fast-diff";
+import { RootStackParamList } from "Navigation";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import richText from "rich-text";
@@ -12,19 +13,18 @@ import { Error } from "sharedb";
 import Sharedb from "sharedb/lib/client";
 import { Socket } from "sharedb/lib/sharedb";
 
-import { RootStackParamList } from "../App";
 import { HSpace } from "../components/atoms/HSpace";
 import { Icon } from "../components/atoms/Icon";
 import { Screen } from "../components/atoms/Screen";
 import { VSpace } from "../components/atoms/VSpace";
 import { LoadingIndicator } from "../components/molecules/LoadingIndicator";
 import { useGetNote, useSaveNote } from "../features/note/hooks";
-import { applyDelta, parseDelta } from "../features/note/utils";
+import { applyOperations, parseDelta } from "../features/note/utils";
 import { useDebounce } from "../library/hooks";
 import { Logger } from "../library/logger";
+import { useTheme } from "../theme/hooks";
 import { makeStyles } from "../theme/makeStyles";
 import { Theme } from "../theme/theme";
-import { useTheme } from "../theme/useTheme";
 
 const UID = "user";
 
@@ -110,6 +110,7 @@ export const NoteEditor = ({ navigation }: Props) => {
       text.source === UID
     ) {
       const delta = parseDelta(diff(prevText?.value || "", text.value));
+
       doc &&
         doc.submitOp(
           { ...delta, docId: noteId },
@@ -157,7 +158,7 @@ export const NoteEditor = ({ navigation }: Props) => {
             return;
           }
 
-          const newString = applyDelta(delta, curTextRef?.current?.value);
+          const newString = applyOperations(delta, curTextRef?.current?.value);
 
           setText({ value: newString, source: "" });
         });

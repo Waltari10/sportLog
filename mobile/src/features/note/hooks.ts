@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Note } from "@common/types";
 
 import { useAppState } from "../../library/StateProvider";
 import { getNotes, saveNote as saveNoteAPICall } from "./noteAPI";
@@ -26,6 +27,7 @@ export const useGetNote = (noteId?: string): Note | undefined => {
   return appState.notes.find(n => n.id === noteId);
 };
 
+// TODO: Use tanstack query instead
 export const useSaveNote = (): UseSaveNoteRes => {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -55,6 +57,7 @@ export const useSaveNote = (): UseSaveNoteRes => {
   return { saveNote, isLoading, isError, isSuccess, error };
 };
 
+// TODO: Use tanstack query instead
 export const useGetNotes = (): UseGetNotesRes => {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);

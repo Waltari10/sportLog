@@ -1,0 +1,25 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "compilerOptions": {
+        "target": "es2020" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', 'ES2021', or 'ESNEXT'. */,
+        "module": "CommonJS" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */,
+        "lib": [
+            "es2020"
+        ],
+        "declaration": true /* Generates corresponding '.d.ts' file. */,
+        "declarationMap": true /* Generates a sourcemap for each corresponding '.d.ts' file. */,
+        "strict": true,
+        "baseUrl": "./src",
+        "outDir": "dist",
+        "rootDir": "src",
+        "composite": true,
+        "paths": {
+            "@common/*": [
+                "./*"
+            ]
+        },
+        "skipLibCheck": true, /* Skip type checking of declaration files. */
+        "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
+    },
+    "esModuleInterop": true
+}

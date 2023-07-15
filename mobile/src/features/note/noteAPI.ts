@@ -1,3 +1,4 @@
+import { Note } from "@common/types";
 import axios from "axios";
 
 import { Logger } from "../../library/logger";

@@ -2,7 +2,7 @@ import * as React from "react";
 import { ViewStyle } from "react-native";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 
-import { useTheme } from "../../theme/useTheme";
+import { useTheme } from "../../theme/hooks";
 
 type Props = {
   name: string;

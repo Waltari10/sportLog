@@ -1,10 +1,11 @@
 import React from "react";
 import { SafeAreaView, StatusBar, View } from "react-native";
+import { Note } from "@common/types";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { NoteEditor } from "screens/NoteEditor";
+import { NoteList } from "screens/NoteList";
 
-import { NoteEditor } from "./screens/NoteEditor";
-import { NoteList } from "./screens/NoteList";
 import { makeStyles } from "./theme/makeStyles";
 
 const Stack = createStackNavigator();
@@ -18,6 +19,11 @@ const useStyles = makeStyles(theme => ({
     flex: 1,
   },
 }));
+
+export type RootStackParamList = {
+  noteList: undefined;
+  noteEditor: { note: Note };
+};
 
 export const Navigation = () => {
   const styles = useStyles();
