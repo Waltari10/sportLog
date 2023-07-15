@@ -4,7 +4,16 @@ import { TouchableOpacity, View } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { HSpace } from "components/atoms/HSpace";
+import { Icon } from "components/atoms/Icon";
+import { Screen } from "components/atoms/Screen";
+import { VSpace } from "components/atoms/VSpace";
+import { LoadingIndicator } from "components/molecules/LoadingIndicator";
 import diff from "fast-diff";
+import { useGetNote, useSaveNote } from "features/note/hooks";
+import { applyOperations, parseDelta } from "features/note/utils";
+import { useDebounce } from "library/hooks";
+import { Logger } from "library/logger";
 import { RootStackParamList } from "Navigation";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
@@ -12,19 +21,9 @@ import richText from "rich-text";
 import { Error } from "sharedb";
 import Sharedb from "sharedb/lib/client";
 import { Socket } from "sharedb/lib/sharedb";
-
-import { HSpace } from "../components/atoms/HSpace";
-import { Icon } from "../components/atoms/Icon";
-import { Screen } from "../components/atoms/Screen";
-import { VSpace } from "../components/atoms/VSpace";
-import { LoadingIndicator } from "../components/molecules/LoadingIndicator";
-import { useGetNote, useSaveNote } from "../features/note/hooks";
-import { applyOperations, parseDelta } from "../features/note/utils";
-import { useDebounce } from "../library/hooks";
-import { Logger } from "../library/logger";
-import { useTheme } from "../theme/hooks";
-import { makeStyles } from "../theme/makeStyles";
-import { Theme } from "../theme/theme";
+import { useTheme } from "theme/hooks";
+import { makeStyles } from "theme/makeStyles";
+import { Theme } from "theme/theme";
 
 const UID = "user";
 

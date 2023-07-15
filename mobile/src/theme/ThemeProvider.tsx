@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
-
-import { themeDark, themeLight } from "./theme";
+import { themeDark, themeLight } from "theme/theme";
 
 const initialContextState = {
   toggleTheme: () => {},

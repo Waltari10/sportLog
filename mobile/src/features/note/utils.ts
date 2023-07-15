@@ -2,14 +2,27 @@ const insertStringToStringAt = (a: string, b: string, position: number) => {
   return [a.slice(0, position), b, a.slice(position)].join("");
 };
 
-type Delta = [number, string];
+/**
+ * Copied from quill-delta package
+ */
+interface AttributeMap {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+}
 
+/**
+ * Copied from quill-delta package
+ */
 type Operations = {
-  retain?: number;
-  insert?: string;
+  insert?: string | object;
   delete?: number;
+  retain?: number;
+  attributes?: AttributeMap;
 };
 
+/**
+ * TODO: Add comment explaining function
+ */
 export const applyOperations = (
   delta: { ops: Operations[] },
   inputString: string | null = ""
@@ -39,6 +52,11 @@ export const applyOperations = (
   return tempString;
 };
 
+type Delta = [number, string];
+
+/**
+ * TODO: Add comment explaining function
+ */
 export const parseDelta = (diffArr: Delta[]) => {
   const ops = diffArr.map((diff: Delta) => {
     const op: Operations = {};

@@ -1,8 +1,7 @@
 import { useMemo } from "react";
 import { StyleSheet } from "react-native";
-
-import { useTheme } from "./hooks";
-import { Theme } from "./theme";
+import { useTheme } from "theme/hooks";
+import { Theme } from "theme/theme";
 
 /**
  * makeStyles takes in a callback as argument that receives theme as an argument and the callback should return a styling object.

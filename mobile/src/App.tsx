@@ -1,8 +1,7 @@
 import React from "react";
-
-import { StateProvider } from "./library/StateProvider";
-import { ThemeProvider } from "./theme/ThemeProvider";
-import { Navigation } from "./Navigation";
+import { StateProvider } from "library/StateProvider";
+import { Navigation } from "Navigation";
+import { ThemeProvider } from "theme/ThemeProvider";
 
 const App = () => {
   return (

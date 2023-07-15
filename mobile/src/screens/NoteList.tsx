@@ -1,25 +1,24 @@
-import * as React from "react";
+import React, { useCallback, useState } from "react";
 import { View } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { FlatList } from "react-native";
+import { Note } from "@common/types";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { HSpace } from "components/atoms/HSpace";
+import { Icon } from "components/atoms/Icon";
+import { Screen } from "components/atoms/Screen";
+import { Typography } from "components/atoms/Typography";
+import { VSpace } from "components/atoms/VSpace";
+import { Hero } from "components/molecules/Hero";
+import { LoadingIndicator } from "components/molecules/LoadingIndicator";
 import { format } from "date-fns";
+import { useGetNotes, useSaveNote } from "features/note/hooks";
+import { Logger } from "library/logger";
 import { RootStackParamList } from "Navigation";
+import { useToggleTheme } from "theme/hooks";
+import { makeStyles } from "theme/makeStyles";
 
-import { HSpace } from "../components/atoms/HSpace";
-import { Icon } from "../components/atoms/Icon";
-import { Screen } from "../components/atoms/Screen";
-import { Typography } from "../components/atoms/Typography";
-import { VSpace } from "../components/atoms/VSpace";
-import { Hero } from "../components/molecules/Hero";
-import { LoadingIndicator } from "../components/molecules/LoadingIndicator";
-import { useGetNotes, useSaveNote } from "../features/note/hooks";
-import { Logger } from "../library/logger";
-import { useToggleTheme } from "../theme/hooks";
-import { makeStyles } from "../theme/makeStyles";
-import { Theme } from "../theme/theme";
-
-const useStyles = makeStyles((theme: Theme) => {
+const useStyles = makeStyles(theme => {
   return {
     headerContainer: {
       flexDirection: "row",
@@ -80,45 +79,76 @@ export const NoteList = ({ navigation }: Props) => {
   // TODO: Implement error handling
   const { notes, reload, isLoading } = useGetNotes();
   const { saveNote, isLoading: isLoadingSave } = useSaveNote();
-  const [showMenu, setShowMenu] = React.useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   const toggleTheme = useToggleTheme();
 
   const styles = useStyles();
+
+  const onAddNewNote = useCallback(async () => {
+    try {
+      const note = await saveNote({ author: "Ville Valmentaja" }); // Author is always same since changing user not implemented.
+      if (note) {
+        navigation.navigate("noteEditor", { note });
+        reload(); // refetch all notes for list since new one just added
+      } else {
+        throw new Error("Unknown error adding new note!");
+      }
+    } catch (err) {
+      Logger.error("error adding new note", err);
+    }
+  }, [navigation, reload, saveNote]);
+
+  const onToggleTheme = useCallback(() => {
+    toggleTheme();
+    setShowMenu(false);
+  }, [toggleTheme]);
+
+  const toggleMenuVisibility = useCallback(() => {
+    setShowMenu(!showMenu);
+  }, [showMenu]);
+
+  const renderNote = useCallback(
+    ({ item: note }: { item: Note }) => {
+      return (
+        <TouchableOpacity
+          key={note.id}
+          onPress={() => navigation.navigate("noteEditor", { note })}
+          style={styles.noteContainer}
+        >
+          <View>
+            <Typography type="body">{note.title}</Typography>
+            <View style={styles.subtitle}>
+              <Typography type="subtitle">
+                {note.author}
+                {", "}
+              </Typography>
+              <Typography type="subtitle">
+                {!!note.createdAt &&
+                  format(new Date(note.createdAt), "d.L.yyyy")}
+              </Typography>
+            </View>
+          </View>
+          <Icon style={styles.noteArrowIcon} name="arrow-right" />
+        </TouchableOpacity>
+      );
+    },
+
+    []
+  );
+
   return (
     <Screen>
       <FlatList
         data={notes}
-        renderItem={({ item: note }: { item: Note }) => {
-          return (
-            <TouchableOpacity
-              key={note.id}
-              onPress={() => navigation.navigate("noteEditor", { note })}
-              style={styles.noteContainer}
-            >
-              <View>
-                <Typography type="body">{note.title}</Typography>
-                <View style={styles.subtitle}>
-                  <Typography type="subtitle">
-                    {note.author}
-                    {", "}
-                  </Typography>
-                  <Typography type="subtitle">
-                    {!!note.createdAt &&
-                      format(new Date(note.createdAt), "d.L.yyyy")}
-                  </Typography>
-                </View>
-              </View>
-              <Icon style={styles.noteArrowIcon} name="arrow-right" />
-            </TouchableOpacity>
-          );
-        }}
-        keyExtractor={item => item.id}
+        renderItem={renderNote}
+        // NOTE: Not optimal to use index, rethink at some point
+        keyExtractor={(item, index) => item.id || `${index}`}
       />
 
       <View style={styles.headerContainer}>
         <View style={styles.headerContentContainer}>
-          <TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
+          <TouchableOpacity onPress={toggleMenuVisibility}>
             <Icon name="menu" size={30} />
           </TouchableOpacity>
           <VSpace size={2} />
@@ -126,32 +156,12 @@ export const NoteList = ({ navigation }: Props) => {
           <VSpace size={2} />
           {(isLoading || isLoadingSave) && <LoadingIndicator />}
         </View>
-        <Hero
-          onPress={() => {
-            saveNote({ author: "Ville Valmentaja" })
-              .then(note => {
-                if (note) {
-                  navigation.navigate("noteEditor", { note });
-                  reload();
-                } else {
-                  Logger.error("error adding new note!");
-                }
-              })
-              .catch(err => Logger.error("err adding new note", err));
-          }}
-          text="Add"
-          style={styles.headerHero}
-        />
+        <Hero onPress={onAddNewNote} text="Add" style={styles.headerHero} />
       </View>
       <HSpace size={2} />
       {showMenu && (
         <View style={styles.menu}>
-          <TouchableOpacity
-            onPress={() => {
-              toggleTheme();
-              setShowMenu(false);
-            }}
-          >
+          <TouchableOpacity onPress={onToggleTheme}>
             <Typography type="body">Toggle theme</Typography>
           </TouchableOpacity>
         </View>
