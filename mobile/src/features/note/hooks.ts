@@ -1,95 +1,79 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Note } from "@common/types";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { minutesToMilliseconds } from "date-fns";
+import { queryClient, queryKeys } from "library/tanstackQuery";
 
 import { useAppState } from "../../library/StateProvider";
 import { getNotes, saveNote as saveNoteAPICall } from "./noteAPI";
 
-interface UseGetNotesRes {
-  notes: Note[];
-  isLoading: boolean;
-  isError: boolean;
-  isSuccess: boolean;
-  error: unknown | undefined;
-  reload: () => void;
-}
-
-interface UseSaveNoteRes {
-  saveNote: (note: Note) => Promise<Note | undefined>;
-  isLoading: boolean;
-  isError: boolean;
-  isSuccess: boolean;
-  error: unknown | undefined;
-}
-
+/**
+ * Fetches a single note from app state. Doesn't make requests to backend
+ */
 export const useGetNote = (noteId?: string): Note | undefined => {
   const appState = useAppState();
 
   return appState.notes.find(n => n.id === noteId);
 };
 
-// TODO: Use tanstack query instead
-export const useSaveNote = (): UseSaveNoteRes => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<unknown>();
+/**
+ * Returns a function that can be used to save a note to backend database. Also keeps track of request state.
+ */
+export const useSaveNote = () => {
+  const {
+    mutateAsync: saveNote,
+    isLoading,
+    error,
+    data,
+    isSuccess,
+  } = useMutation({
+    mutationFn: saveNoteAPICall,
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: queryKeys.getNotes });
+    },
+  });
+
+  const isError = !!error;
   const appState = useAppState();
 
-  const saveNote = async (note: Note) => {
-    setIsLoading(true);
-    setIsError(false);
-    setIsSuccess(false);
-
-    try {
-      const res = await saveNoteAPICall(note);
-      setIsSuccess(true);
-      appState.saveNote(res);
-      return res;
-    } catch (err) {
-      setError(err);
-      setIsError(true);
-      setIsSuccess(false);
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    if (data) {
+      appState.saveNote(data);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
-  return { saveNote, isLoading, isError, isSuccess, error };
+  return { saveNote, isLoading, isError, isSuccess, error, data };
 };
 
-// TODO: Use tanstack query instead
-export const useGetNotes = (): UseGetNotesRes => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<unknown>();
+/**
+ * Fetches notes from backend database. Also keeps track of request state.
+ */
+export const useFetchNotes = () => {
+  const { isLoading, error, data, isSuccess, refetch } = useQuery({
+    cacheTime: minutesToMilliseconds(1),
+    queryKey: queryKeys.getNotes,
+    queryFn: () => getNotes(),
+  });
+
   const appState = useAppState();
 
-  const effectCallBack = () => {
-    setIsLoading(true);
-    setIsError(false);
-    getNotes()
-      .then(notes => {
-        appState.setNotes(notes || []);
-        setIsSuccess(true);
-      })
-      .catch(err => {
-        setIsError(true);
-        setError(err);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
+  const isError = !!error;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(effectCallBack, []);
+  useEffect(() => {
+    if (data && isSuccess && !isLoading) {
+      appState.setNotes(data || []);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+
   return {
     notes: appState.notes,
     isLoading,
     isError,
     isSuccess,
     error,
-    reload: effectCallBack,
+    refetch,
   };
 };

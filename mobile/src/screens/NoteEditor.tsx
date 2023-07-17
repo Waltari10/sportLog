@@ -2,6 +2,7 @@ import * as React from "react";
 import { useEffect } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
+import { UID, WebSocketOpenConnectionToNoteRoute } from "@common/constants";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { HSpace } from "components/atoms/HSpace";
@@ -11,7 +12,7 @@ import { VSpace } from "components/atoms/VSpace";
 import { LoadingIndicator } from "components/molecules/LoadingIndicator";
 import diff from "fast-diff";
 import { useGetNote, useSaveNote } from "features/note/hooks";
-import { applyOperations, parseDelta } from "features/note/utils";
+import { applyOperations, Operations, parseDelta } from "features/note/utils";
 import { useDebounce } from "library/hooks";
 import { Logger } from "library/logger";
 import { RootStackParamList } from "Navigation";
@@ -24,27 +25,6 @@ import { Socket } from "sharedb/lib/sharedb";
 import { useTheme } from "theme/hooks";
 import { makeStyles } from "theme/makeStyles";
 import { Theme } from "theme/theme";
-
-const UID = "user";
-
-const useStyles = makeStyles((theme: Theme) => {
-  return {
-    input: {
-      width: "100%",
-      ...theme.fonts.body,
-      color: theme.colors.white,
-    },
-    screen: {
-      paddingTop: theme.spacing(2),
-      paddingLeft: theme.spacing(2),
-      paddingRight: theme.spacing(2),
-      paddingBottom: theme.spacing(2),
-    },
-    navBar: {
-      flexDirection: "row",
-    },
-  };
-});
 
 type NoteEditorScreenRouteProp = RouteProp<RootStackParamList, "noteEditor">;
 
@@ -136,9 +116,9 @@ export const NoteEditor = ({ navigation }: Props) => {
     ws.onopen = () => {
       ws.send(
         JSON.stringify({
-          type: "OPEN_CONNECTION_TO_DOC",
+          route: WebSocketOpenConnectionToNoteRoute,
           payload: {
-            docId: noteId,
+            noteId,
           },
         })
       );
@@ -152,7 +132,7 @@ export const NoteEditor = ({ navigation }: Props) => {
           setText({ value: doc.data.ops[0].insert || "", source: UID }); // Always only has insert delta at first...
         }
 
-        doc.on("op", (delta: unknown, source) => {
+        doc.on("op", (delta: { ops: Operations[] }, source) => {
           if (source === UID || !delta || !delta.ops || !delta.ops.length) {
             return;
           }
@@ -210,3 +190,22 @@ export const NoteEditor = ({ navigation }: Props) => {
     </Screen>
   );
 };
+
+const useStyles = makeStyles((theme: Theme) => {
+  return {
+    input: {
+      width: "100%",
+      ...theme.fonts.body,
+      color: theme.colors.white,
+    },
+    screen: {
+      paddingTop: theme.spacing(2),
+      paddingLeft: theme.spacing(2),
+      paddingRight: theme.spacing(2),
+      paddingBottom: theme.spacing(2),
+    },
+    navBar: {
+      flexDirection: "row",
+    },
+  };
+});

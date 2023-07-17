@@ -11,20 +11,6 @@ type Props = {
   onPress?: () => void;
 };
 
-const useStyles = makeStyles((theme: Theme) => {
-  return {
-    hero: {
-      borderRadius: 100,
-      width: theme.spacing(8),
-      height: theme.spacing(8),
-      marginRight: theme.spacing(2),
-      backgroundColor: theme.colors.grey25,
-      justifyContent: "center",
-    },
-    text: { textAlign: "center" },
-  };
-});
-
 export const Hero: React.FunctionComponent<Props> = ({
   style,
   text,
@@ -39,3 +25,17 @@ export const Hero: React.FunctionComponent<Props> = ({
     </TouchableOpacity>
   );
 };
+
+const useStyles = makeStyles((theme: Theme) => {
+  return {
+    hero: {
+      borderRadius: 100,
+      width: theme.spacing(8),
+      height: theme.spacing(8),
+      marginRight: theme.spacing(2),
+      backgroundColor: theme.colors.grey25,
+      justifyContent: "center",
+    },
+    text: { textAlign: "center" },
+  };
+});

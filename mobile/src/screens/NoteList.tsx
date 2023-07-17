@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { FlatList } from "react-native";
@@ -12,59 +12,11 @@ import { VSpace } from "components/atoms/VSpace";
 import { Hero } from "components/molecules/Hero";
 import { LoadingIndicator } from "components/molecules/LoadingIndicator";
 import { format } from "date-fns";
-import { useGetNotes, useSaveNote } from "features/note/hooks";
+import { useFetchNotes, useSaveNote } from "features/note/hooks";
 import { Logger } from "library/logger";
 import { RootStackParamList } from "Navigation";
 import { useToggleTheme } from "theme/hooks";
 import { makeStyles } from "theme/makeStyles";
-
-const useStyles = makeStyles(theme => {
-  return {
-    headerContainer: {
-      flexDirection: "row",
-    },
-    headerContentContainer: {
-      backgroundColor: theme.colors.grey25,
-      height: theme.spacing(8),
-      borderRadius: theme.shape.round,
-      marginLeft: theme.spacing(2),
-      marginRight: theme.spacing(2),
-      alignItems: "center",
-      flexDirection: "row",
-      paddingLeft: theme.spacing(2),
-      paddingRight: theme.spacing(2),
-      flex: 1,
-    },
-    headerHero: {
-      marginRight: theme.spacing(2),
-    },
-    noteContainer: {
-      height: theme.spacing(10),
-      marginLeft: theme.spacing(2),
-      justifyContent: "center",
-    },
-    noteDragIndicator: {
-      position: "absolute",
-    },
-    noteArrowIcon: {
-      position: "absolute",
-      right: theme.spacing(1),
-    },
-    subtitle: {
-      flexDirection: "row",
-      color: theme.colors.grey65,
-    },
-    menu: {
-      borderRadius: theme.shape.round,
-      position: "absolute",
-      width: theme.spacing(20),
-      padding: theme.spacing(1),
-      backgroundColor: theme.colors.grey65,
-      bottom: theme.spacing(5),
-      left: theme.spacing(7),
-    },
-  };
-});
 
 type NoteListScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -76,28 +28,42 @@ type Props = {
 };
 
 export const NoteList = ({ navigation }: Props) => {
-  // TODO: Implement error handling
-  const { notes, reload, isLoading } = useGetNotes();
-  const { saveNote, isLoading: isLoadingSave } = useSaveNote();
-  const [showMenu, setShowMenu] = useState(false);
+  const { notes, refetch, isLoading, error: fetchNotesError } = useFetchNotes();
+  const {
+    saveNote,
+    isLoading: isLoadingSave,
+    error: saveNotesError,
+  } = useSaveNote();
 
-  const toggleTheme = useToggleTheme();
+  const [showMenu, setShowMenu] = useState(false);
 
   const styles = useStyles();
 
+  useEffect(() => {
+    if (fetchNotesError) {
+      Logger.error("Error fetching notes!", fetchNotesError);
+    }
+  }, [fetchNotesError]);
+
+  useEffect(() => {
+    if (saveNotesError) {
+      Logger.error("Error adding new note!", saveNotesError);
+    }
+  }, [saveNotesError]);
+
   const onAddNewNote = useCallback(async () => {
     try {
-      const note = await saveNote({ author: "Ville Valmentaja" }); // Author is always same since changing user not implemented.
-      if (note) {
-        navigation.navigate("noteEditor", { note });
-        reload(); // refetch all notes for list since new one just added
-      } else {
-        throw new Error("Unknown error adding new note!");
+      const newNote = await saveNote({ author: "Ville Valmentaja" }); // Author is always same since changing user not implemented.
+      if (newNote) {
+        navigation.navigate("noteEditor", { note: newNote });
+        refetch(); // refetch all notes for list since new one just added
       }
     } catch (err) {
       Logger.error("error adding new note", err);
     }
-  }, [navigation, reload, saveNote]);
+  }, [navigation, refetch, saveNote]);
+
+  const toggleTheme = useToggleTheme();
 
   const onToggleTheme = useCallback(() => {
     toggleTheme();
@@ -134,7 +100,7 @@ export const NoteList = ({ navigation }: Props) => {
       );
     },
 
-    []
+    [navigation, styles.noteArrowIcon, styles.noteContainer, styles.subtitle]
   );
 
   return (
@@ -169,3 +135,49 @@ export const NoteList = ({ navigation }: Props) => {
     </Screen>
   );
 };
+
+const useStyles = makeStyles(theme => {
+  return {
+    headerContainer: {
+      flexDirection: "row",
+    },
+    headerContentContainer: {
+      backgroundColor: theme.colors.grey25,
+      minHeight: theme.spacing(8),
+      borderRadius: theme.shape.round,
+      marginHorizontal: theme.spacing(2),
+      paddingHorizontal: theme.spacing(2),
+      alignItems: "center",
+      flexDirection: "row",
+      flex: 1,
+    },
+    headerHero: {
+      marginRight: theme.spacing(2),
+    },
+    noteContainer: {
+      minHeight: theme.spacing(10),
+      marginLeft: theme.spacing(2),
+      justifyContent: "center",
+    },
+    noteDragIndicator: {
+      position: "absolute",
+    },
+    noteArrowIcon: {
+      position: "absolute",
+      right: theme.spacing(1),
+    },
+    subtitle: {
+      flexDirection: "row",
+      color: theme.colors.grey65,
+    },
+    menu: {
+      borderRadius: theme.shape.round,
+      position: "absolute",
+      width: theme.spacing(20),
+      padding: theme.spacing(1),
+      backgroundColor: theme.colors.grey65,
+      bottom: theme.spacing(5),
+      left: theme.spacing(7),
+    },
+  };
+});

@@ -1,6 +1,5 @@
-
-import { Chance } from "chance";
 import { Note } from "@common/types";
+import { Chance } from "chance";
 
 const chance = new Chance();
 
@@ -36,8 +35,7 @@ const generateNotes = (count: number) => {
   return notes;
 };
 
-
 /**
  * Pretend this "notes" variable is a database for testing purposes
  */
-export const notes = generateNotes(50);
+export const NoteDB = generateNotes(50);

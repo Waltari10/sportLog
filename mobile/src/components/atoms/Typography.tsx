@@ -12,8 +12,6 @@ type Props = {
   children?: React.ReactNode;
 };
 
-const useStyles = makeStyles(theme => theme.fonts);
-
 export const Typography = ({ type, color, style, ...rest }: Props) => {
   const theme = useTheme();
   const styles = useStyles();
@@ -25,3 +23,5 @@ export const Typography = ({ type, color, style, ...rest }: Props) => {
     />
   );
 };
+
+const useStyles = makeStyles(theme => theme.fonts);

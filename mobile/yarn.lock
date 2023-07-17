@@ -1907,6 +1907,19 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
+"@tanstack/query-core@4.29.23":
+  version "4.29.23"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.29.23.tgz#a38f0efcc4abd5849222a7f382ce3a19a9efb070"
+  integrity sha512-4BMHPrkfYmLP+NvqbbkV7Mk1nnphu+bNmxhhuB0+EMjKA7VfyFCfiyiTf55RRDgLaevyb9LrFK16lHW2owF52w==
+
+"@tanstack/react-query@^4.29.23":
+  version "4.29.23"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-4.29.23.tgz#aee47562a59c1dc0f69a9e3abc5ece8a3afb9e32"
+  integrity sha512-u59dPBJHeyeRDSrHN3M8FT65yZDT0uPlaFDFd4K2wmDreHguRlk9t578X+cp1Cj+4oksQCE+wv09A5ZH7Odx6g==
+  dependencies:
+    "@tanstack/query-core" "4.29.23"
+    use-sync-external-store "^1.2.0"
+
 "@tsconfig/react-native@^3.0.0":
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/@tsconfig/react-native/-/react-native-3.0.2.tgz#f7db242eee4820f5a3d0edcc86c920bb7d9ec0f2"
@@ -6669,7 +6682,7 @@ use-latest-callback@^0.1.5:
   resolved "https://registry.yarnpkg.com/use-latest-callback/-/use-latest-callback-0.1.6.tgz#3fa6e7babbb5f9bfa24b5094b22939e1e92ebcf6"
   integrity sha512-VO/P91A/PmKH9bcN9a7O3duSuxe6M14ZoYXgA6a8dab8doWNdhiIHzEkX/jFeTTRBsX0Ubk6nG4q2NIjNsj+bg==
 
-use-sync-external-store@^1.0.0:
+use-sync-external-store@^1.0.0, use-sync-external-store@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.2.0.tgz#7dbefd6ef3fe4e767a0cf5d7287aacfb5846928a"
   integrity sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==

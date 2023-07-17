@@ -13,7 +13,7 @@ interface AttributeMap {
 /**
  * Copied from quill-delta package
  */
-type Operations = {
+export type Operations = {
   insert?: string | object;
   delete?: number;
   retain?: number;
