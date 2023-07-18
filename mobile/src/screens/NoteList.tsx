@@ -55,7 +55,7 @@ export const NoteList = ({ navigation }: Props) => {
     try {
       const newNote = await saveNote({ author: "Ville Valmentaja" }); // Author is always same since changing user not implemented.
       if (newNote) {
-        navigation.navigate("noteEditor", { note: newNote });
+        navigation.navigate("noteEditor", { noteId: newNote.id });
         refetch(); // refetch all notes for list since new one just added
       }
     } catch (err) {
@@ -79,7 +79,7 @@ export const NoteList = ({ navigation }: Props) => {
       return (
         <TouchableOpacity
           key={note.id}
-          onPress={() => navigation.navigate("noteEditor", { note })}
+          onPress={() => navigation.navigate("noteEditor", { noteId: note.id })}
           style={styles.noteContainer}
         >
           <View>
@@ -108,8 +108,7 @@ export const NoteList = ({ navigation }: Props) => {
       <FlatList
         data={notes}
         renderItem={renderNote}
-        // NOTE: Not optimal to use index, rethink at some point
-        keyExtractor={(item, index) => item.id || `${index}`}
+        keyExtractor={item => item.id}
       />
 
       <View style={styles.headerContainer}>

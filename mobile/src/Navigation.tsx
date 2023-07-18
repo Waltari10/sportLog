@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme => ({
 
 export type RootStackParamList = {
   noteList: undefined;
-  noteEditor: { note: Note };
+  noteEditor: { noteId: string };
 };
 
 export const Navigation = () => {

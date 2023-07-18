@@ -10,7 +10,7 @@ import { getNotes, saveNote as saveNoteAPICall } from "./noteAPI";
 /**
  * Fetches a single note from app state. Doesn't make requests to backend
  */
-export const useGetNote = (noteId?: string): Note | undefined => {
+export const useNote = (noteId?: string): Note | undefined => {
   const appState = useAppState();
 
   return appState.notes.find(n => n.id === noteId);

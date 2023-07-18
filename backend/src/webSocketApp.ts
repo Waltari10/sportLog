@@ -1,12 +1,5 @@
-import {
-  WebSocketOpenConnectionToNoteRoute,
-} from "@common/constants";
-
-import {
-  WebSocketMessage,
-} from "@common/types";
-
-
+import { WebSocketOpenConnectionToNoteRoute } from "@common/constants";
+import { WebSocketMessage } from "@common/types";
 import { openWebSocketConnectionToNote } from "openWebSocketConnectionToNote";
 import WebSocket from "ws";
 
