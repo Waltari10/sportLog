@@ -25,7 +25,10 @@ export const useListenToRemoteNoteChanges = (
           throw err;
         }
 
-        shareDBNote.on("op", onOperation);
+        shareDBNote.on("op", (delta, source) => {
+          // @ts-expect-error - ShareDB on event typing seems invalid or lacking. onOperation uses any type for some reason.
+          onOperation(delta, source);
+        });
       });
     };
   }, [noteId, onOperation, shareDBNote, ws]);

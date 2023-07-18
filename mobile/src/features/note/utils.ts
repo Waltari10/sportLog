@@ -9,7 +9,8 @@ const insertStringToStringAt = (a: string, b: string, position: number) => {
 };
 
 /**
- * Copied from quill-delta package
+ * Describes an action to be made on a string to transform it into another string.
+ * Copied from quill-delta package.
  */
 export type Operations = {
   insert?: string | object;
@@ -18,17 +19,14 @@ export type Operations = {
 };
 
 /**
- * TODO: Add comment explaining function
+ * Takes in a
  */
-export const applyOperations = (
-  delta: { ops: Operations[] },
-  inputString = ""
-) => {
+export const applyOperations = (operations: Operations[], inputString = "") => {
   let retainFromStart = 0;
 
   let tempString = inputString;
 
-  delta.ops.forEach((op: Operations) => {
+  operations.forEach((op: Operations) => {
     if (op.retain) {
       retainFromStart = retainFromStart + op.retain;
     } else if (op.insert && typeof tempString === "string") {
@@ -69,5 +67,5 @@ export const parseOperations = (oldString: string, currentString: string) => {
     return op;
   });
 
-  return { ops };
+  return ops;
 };

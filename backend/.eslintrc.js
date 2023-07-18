@@ -18,6 +18,7 @@ module.exports = {
     ],
     rules: {
       "space-in-brackets": "off",
+      "no-console": "off",
     },
   };
   

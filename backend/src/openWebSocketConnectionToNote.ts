@@ -1,11 +1,13 @@
 import { WebSocketOpenConnectionMessage } from "@common/types";
+import WebSocketJSONStream from "@teamwork/websocket-json-stream";
+import richText from "rich-text";
 import ShareDB from "sharedb";
 import WebSocket from "ws";
 
 import { NoteDB } from "./notesDB";
-const WebSocketJSONStream = require("@teamwork/websocket-json-stream");
 
-ShareDB.types.register(require("rich-text").type);
+ShareDB.types.register(richText.type);
+
 const shareDBServer = new ShareDB();
 
 /**

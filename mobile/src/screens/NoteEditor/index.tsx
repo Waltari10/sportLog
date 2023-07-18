@@ -11,17 +11,23 @@ import { Screen } from "components/atoms/Screen";
 import { VSpace } from "components/atoms/VSpace";
 import { LoadingIndicator } from "components/molecules/LoadingIndicator";
 import { useNote, useSaveNote } from "features/note/hooks";
-import { applyOperations, parseOperations } from "features/note/utils";
+import {
+  applyOperations,
+  Operations,
+  parseOperations,
+} from "features/note/utils";
 import { useDebounce, usePreviousRenderValue } from "library/hooks";
 import { Logger } from "library/logger";
 import { RootStackParamList } from "Navigation";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import richText from "rich-text";
+import {
+  useNoteFromShareDB,
+  useShareDbConnection,
+  useWebSocketConnection,
+} from "screens/NoteEditor/hooks";
 import { useListenToRemoteNoteChanges } from "screens/NoteEditor/useListenToRemoteNoteChanges";
-import { useNoteFromShareDB } from "screens/NoteEditor/useNoteFromShareDb";
-import { useShareDbConnection } from "screens/NoteEditor/useShareDBconnection";
-import { useWebSocketConnection } from "screens/NoteEditor/useWebSocketConnection";
 import { Error } from "sharedb";
 import Sharedb from "sharedb/lib/client";
 import { useTheme } from "theme/hooks";
@@ -77,6 +83,13 @@ export const NoteEditor = ({ navigation }: Props) => {
     value: note?.content || "",
   });
 
+  /**
+   * curTextRef is used to pass a reference to text to onRemoteOperation callback.
+   * This is because useListenToRemoteNoteChanges register a listener on ShareDB which uses the value.
+   * If using string value directly from state the function would have to change every time and
+   * would have to re-register the listener on every key stroke. Maybe reasonable, but causes bug with
+   * receiving remote changes on other phones so just going with this reference instead.
+   */
   const curTextRef = useRef<TextWithSource>(textWithSource);
   curTextRef.current = textWithSource;
 
@@ -86,18 +99,28 @@ export const NoteEditor = ({ navigation }: Props) => {
   const connection = useShareDbConnection(ws);
   const shareDBNote = useNoteFromShareDB(connection, noteId);
 
+  const onRemoteOperation = useCallback(
+    (
+      delta: {
+        ops: Operations[];
+      },
+      source: string
+    ) => {
+      // If user made the changes locally make sure not to apply again.
+      if (source === UID) return;
+
+      // Modify local string in state with incoming operations from other users.
+      const newString = applyOperations(delta.ops, curTextRef?.current?.value);
+
+      setTextWithSource({ value: newString, source });
+    },
+    []
+  );
+
   /**
    * Apply remote changes to local React Component state.
    */
-  useListenToRemoteNoteChanges(ws, shareDBNote, noteId, (delta, source) => {
-    // If user made the changes locally make sure not to apply again.
-    if (source === UID) return;
-
-    // Modify local string in state with incoming operations from other users.
-    const newString = applyOperations(delta, curTextRef?.current?.value);
-
-    setTextWithSource({ value: newString, source });
-  });
+  useListenToRemoteNoteChanges(ws, shareDBNote, noteId, onRemoteOperation);
 
   /**
    * Submit local changes to the server in real time for other collaborators.
@@ -110,13 +133,13 @@ export const NoteEditor = ({ navigation }: Props) => {
       shareDBNote
     ) {
       // Calculate operations on text content to send to other users.
-      const delta = parseOperations(
+      const operations = parseOperations(
         prevTextWithSource.value,
         textWithSource.value
       );
 
       shareDBNote.submitOp(
-        { ...delta, docId: noteId },
+        { ops: operations, docId: noteId },
         { source: UID },
         (err: Error) => {
           if (err) {

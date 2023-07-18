@@ -1,6 +1,5 @@
 import React from "react";
 import { SafeAreaView, StatusBar, View } from "react-native";
-import { Note } from "@common/types";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NoteEditor } from "screens/NoteEditor";

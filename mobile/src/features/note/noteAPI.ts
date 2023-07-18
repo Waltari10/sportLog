@@ -1,16 +1,17 @@
 import { Note } from "@common/types";
+import { REST_HOST } from "appConstants";
 import axios from "axios";
 
-const HOST = "http://localhost:8090";
-
 export const getNotes = async (): Promise<Note[]> => {
-  const res = await axios.get(`${HOST}/getNotes`);
+  const res = await axios.get(`${REST_HOST}/getNotes`);
 
   return res.data as Note[];
 };
 
-export const saveNote = async (note: Note): Promise<Note | undefined> => {
-  const res = await axios.post(`${HOST}/saveNote`, note);
+export const saveNote = async (
+  note: Partial<Note>
+): Promise<Note | undefined> => {
+  const res = await axios.post(`${REST_HOST}/saveNote`, note);
 
   return res.data as Note;
 };

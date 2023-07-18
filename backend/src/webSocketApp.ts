@@ -1,4 +1,7 @@
-import { WebSocketOpenConnectionToNoteRoute } from "@common/constants";
+import {
+  WEB_SOCKET_PORT,
+  WebSocketOpenConnectionToNoteRoute,
+} from "@common/constants";
 import { WebSocketMessage } from "@common/types";
 import { openWebSocketConnectionToNote } from "openWebSocketConnectionToNote";
 import WebSocket from "ws";
@@ -11,11 +14,9 @@ const webSocketAppRoutes = {
  * Starts WebSocket server that is used to handle editing the notes in real time by multiple users.
  */
 export const startWebSocketApp = () => {
-  const webSocketPort = 8080;
+  console.log(`starting websocket server on port:${WEB_SOCKET_PORT}`);
 
-  console.log(`starting websocket server on port:${webSocketPort}`);
-
-  const websocketServer = new WebSocket.Server({ port: webSocketPort });
+  const websocketServer = new WebSocket.Server({ port: WEB_SOCKET_PORT });
 
   /**
    * Start WebSocket server for collaboration on notes and listen to new connections.
