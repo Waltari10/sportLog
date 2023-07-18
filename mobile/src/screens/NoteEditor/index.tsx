@@ -19,8 +19,6 @@ import {
 import { useDebounce, usePreviousRenderValue } from "library/hooks";
 import { Logger } from "library/logger";
 import { RootStackParamList } from "Navigation";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
 import richText from "rich-text";
 import {
   useNoteFromShareDB,
