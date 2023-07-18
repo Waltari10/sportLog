@@ -53,6 +53,7 @@ export const NoteEditor = ({ navigation }: Props) => {
 
   const { noteId } = route.params;
 
+  // Use note from state
   const note = useNote(noteId);
 
   /**
@@ -64,22 +65,23 @@ export const NoteEditor = ({ navigation }: Props) => {
 
   const debouncedSaveNote = useDebounce(saveNote, 1000);
 
-  const onNoteChange = useCallback(() => {
-    if (note?.id) {
-      debouncedSaveNote({
-        ...note,
-        title,
-      });
-    }
-  }, [debouncedSaveNote, note, title]);
-
-  const styles = useStyles();
-  const theme = useTheme();
-
   const [textWithSource, setTextWithSource] = useState<TextWithSource>({
     source: UID,
     value: note?.content || "",
   });
+
+  useEffect(() => {
+    if (
+      note?.id &&
+      (note.content !== textWithSource.value || note.title !== title)
+    ) {
+      debouncedSaveNote({
+        ...note,
+        title,
+        content: textWithSource.value,
+      });
+    }
+  }, [debouncedSaveNote, note, textWithSource.value, title]);
 
   /**
    * curTextRef is used to pass a reference to text to onRemoteOperation callback.
@@ -148,10 +150,13 @@ export const NoteEditor = ({ navigation }: Props) => {
     }
   }, [noteId, prevTextWithSource?.value, shareDBNote, textWithSource]);
 
+  const styles = useStyles();
+  const theme = useTheme();
+
   return (
     <Screen style={styles.screen}>
       <View style={styles.navBar}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={navigation.goBack}>
           <Icon size={30} name="arrow-back-ios" />
         </TouchableOpacity>
         <VSpace size={2} />
@@ -163,10 +168,7 @@ export const NoteEditor = ({ navigation }: Props) => {
         style={styles.input}
         placeholder="Title"
         value={title}
-        onChangeText={newText => {
-          setTitle(newText);
-          onNoteChange();
-        }}
+        onChangeText={setTitle}
         placeholderTextColor={theme.colors.grey65}
         autoFocus
         editable
@@ -176,10 +178,9 @@ export const NoteEditor = ({ navigation }: Props) => {
       <TextInput
         style={styles.input}
         placeholder="Note"
-        value={textWithSource?.value || ""}
+        value={textWithSource.value}
         onChangeText={newText => {
           setTextWithSource({ value: newText, source: UID });
-          onNoteChange();
         }}
         placeholderTextColor={theme.colors.grey65}
         editable

@@ -18,3 +18,13 @@ export const usePreviousRenderValue = <T>(value: T) => {
 
   return prevTextRef.current;
 };
+
+/**
+ * Has value changed since last render. Useful for optimizing and seeing where unnecessary renders are coming from.
+ */
+
+export const useHasValueChanged = <T>(value: T) => {
+  const prevValue = usePreviousRenderValue(value);
+
+  return prevValue !== value;
+};

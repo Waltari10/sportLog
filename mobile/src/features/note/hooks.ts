@@ -20,13 +20,7 @@ export const useNote = (noteId?: string): Note | undefined => {
  * Returns a function that can be used to save a note to backend database. Also keeps track of request state.
  */
 export const useSaveNote = () => {
-  const {
-    mutateAsync: saveNote,
-    isLoading,
-    error,
-    data,
-    isSuccess,
-  } = useMutation({
+  const { mutateAsync, isLoading, error, data, isSuccess } = useMutation({
     mutationFn: saveNoteAPICall,
     onSuccess: () => {
       // Invalidate and refetch
@@ -44,7 +38,7 @@ export const useSaveNote = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
-  return { saveNote, isLoading, isError, isSuccess, error, data };
+  return { saveNote: mutateAsync, isLoading, isError, isSuccess, error, data };
 };
 
 /**
