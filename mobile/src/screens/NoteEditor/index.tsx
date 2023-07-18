@@ -70,6 +70,9 @@ export const NoteEditor = ({ navigation }: Props) => {
     value: note?.content || "",
   });
 
+  /**
+   * Save note to actual database with rest call. Note: could perhaps be refactored to be saved on the backend side based on the data received via shareDB websocket connection.
+   */
   useEffect(() => {
     if (
       note?.id &&

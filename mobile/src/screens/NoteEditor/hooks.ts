@@ -1,11 +1,11 @@
 import { useEffect, useMemo } from "react";
-import { WEB_SOCKET_HOST } from "appConstants";
+import { WEB_SOCKET_URI } from "appConstants";
 import ShareDB from "sharedb/lib/client";
 import { Socket } from "sharedb/lib/sharedb";
 
 export const useWebSocketConnection = () => {
   // Creates a new websocket connection
-  const webSocket = useMemo(() => new WebSocket(WEB_SOCKET_HOST), []);
+  const webSocket = useMemo(() => new WebSocket(WEB_SOCKET_URI), []);
 
   useEffect(() => {
     return () => {

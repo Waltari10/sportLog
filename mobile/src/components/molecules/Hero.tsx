@@ -11,11 +11,7 @@ type Props = {
   onPress?: () => void;
 };
 
-export const Hero: React.FunctionComponent<Props> = ({
-  style,
-  text,
-  onPress,
-}: Props) => {
+export const Hero = ({ style, text, onPress }: Props) => {
   const styles = useStyles();
   return (
     <TouchableOpacity onPress={onPress} style={[styles.hero, style]}>
