@@ -1,6 +1,26 @@
 # sportLog
 
-## TODO: Describe project, e.q. collaborative note taking with ShareDB
+## What and why?
+
+This project was made to test out a styling solution that supports dark mode and more excitingly a collaborative note editing feature. 
+
+Multiple users can modify a string note simultaneously and changes are synced to every device using ShareDB with websocket connection.
+
+This is a technical demo and not intended for production. This is reflected in code as sometimes quick and hacky solutions, lack of authentication, using untyped libraries and so on. However reasonable amount of effort was made to keep the code readable.
+
+Collaborative editing based on: https://dev.to/kannndev/let-s-build-a-collaborative-rich-text-editor-32n3
+
+
+## Cool things
+
+- Monorepo configuration with React Native
+- Atomic design folder structure for components
+- Collaborative real time note editing
+- Styling solution that supports dark mode on React Native (Inspired by Material-UI 4 and originally made 2 years ago)
+    - Is possible to support linting rules like unused styles?
+    - Does it detect invalid styles like invalid value for textAlign etc?
+    - Can it detect potentially invalid platform specific styles like z-index?
+    - Performance concerns?
 
 
 ## Running locally
