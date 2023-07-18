@@ -6,7 +6,7 @@ export type WebSocketOpenConnectionMessage = {
   payload: {
     noteId: string;
   }
-}
+} 
 
 // Use union type to combine different message types in future
 export type WebSocketMessage = WebSocketOpenConnectionMessage
