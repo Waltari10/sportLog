@@ -19,7 +19,7 @@ export type Operations = {
 };
 
 /**
- * Takes in a
+ * TODO: add a comment to explain what it does
  */
 export const applyOperations = (operations: Operations[], inputString = "") => {
   let retainFromStart = 0;

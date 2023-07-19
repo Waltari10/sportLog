@@ -53,7 +53,7 @@ export const NoteEditor = ({ navigation }: Props) => {
 
   const { noteId } = route.params;
 
-  // Use note from state
+  // Use note from state. Refactor: could be refactored to be fetched from backend here instead instead of app state.
   const note = useNote(noteId);
 
   /**
@@ -99,8 +99,8 @@ export const NoteEditor = ({ navigation }: Props) => {
   const prevTextWithSource = usePreviousRenderValue(curTextRef.current);
 
   const ws = useWebSocketConnection();
-  const connection = useShareDbConnection(ws);
-  const shareDBNote = useNoteFromShareDB(connection, noteId);
+  const shareDBConnection = useShareDbConnection(ws);
+  const shareDBNote = useNoteFromShareDB(shareDBConnection, noteId);
 
   const onRemoteOperation = useCallback(
     (
